@@ -1,4 +1,7 @@
-## 联创团队2019秋招新人任务
-### 第1期
-- 基于LLRBT实现set.
-- 基于斐波那契堆实现priority_queue.
+### UniqueLab 2019 Autumn Assignment
+
+UniqueLab belongs to Unique Studio in HUST. 
+
+the content of this folder is the assignment for the freshman in autumn, 2019. 
+
+you can see details in each folder with some necessary introductions.
