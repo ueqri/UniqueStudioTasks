@@ -1,0 +1,282 @@
+version: '2.0'
+
+services:
+    NEW-IMAGE:
+        image: quagga-powerful
+        container_name: NEW-IMAGE
+        entrypoint: tail -f /dev/null
+        volumes:
+            - "./client-key:/client"
+        privileged: true
+    NEW-IMAGE-2:
+        image: quagga-powerful
+        container_name: NEW-IMAGE-2
+        entrypoint: sh -c "tail -f /dev/null"
+        privileged: true
+    # ISP networks.
+    CHN-MOBILE-BGP-10086:
+        image: quagga-powerful
+        container_name: CHN-MOBILE-BGP-10086
+        networks:
+            - BGP-10086-10010
+            - S-BGP-23333-10086
+            - WHU-SUBNET-BORDER
+        entrypoint: sh -c "/entrypoint.sh && tail -f /dev/null"
+        volumes:
+            - ./Entrypoint-sh/ISP.sh:/entrypoint.sh
+            - ./Quagga-conf/CHN-MOBILE-BGP-10086.conf:/etc/quagga/Quagga.conf
+        privileged: true
+    CHN-MOBILE-BGP-10087:
+        image: quagga-powerful
+        container_name: CHN-MOBILE-BGP-10087
+        networks:
+            - BGP-10010-10087
+            - HUST-SUBNET-BORDER
+        entrypoint: sh -c "/entrypoint.sh && tail -f /dev/null"
+        volumes:
+            - ./Entrypoint-sh/ISP.sh:/entrypoint.sh
+            - ./Quagga-conf/CHN-MOBILE-BGP-10087.conf:/etc/quagga/Quagga.conf
+        privileged: true
+    CHN-UNICOM-BGP-10010:
+        image: quagga-powerful
+        container_name: CHN-UNICOM-BGP-10010
+        networks:
+            - BGP-10010-10087
+            - BGP-10086-10010
+            - GOOGLE-SUBNET-BORDER
+            - S-BGP-23333-10010
+        entrypoint: sh -c "/entrypoint.sh && tail -f /dev/null"
+        volumes:
+            - ./Entrypoint-sh/ISP.sh:/entrypoint.sh
+            - ./Quagga-conf/CHN-UNICOM-BGP-10010.conf:/etc/quagga/Quagga.conf
+        privileged: true
+    NAIVEKUN-TELECOM:
+        image: quagga-hacker
+        container_name: NAIVEKUN-TELECOM
+        networks:
+            - S-BGP-23333-10010
+            - S-BGP-23333-10086
+        entrypoint: sh -c "/entrypoint.sh && gcc /pcap.c -lpcap -o /pcap && tail -f /dev/null"
+        volumes:
+            - ./Entrypoint-sh/ISP.sh:/entrypoint.sh
+            - ./pcap.c:/pcap.c
+            - ./Quagga-conf/NAIVEKUN-TELECOM-BGP-23333.conf:/etc/quagga/Quagga.conf
+        privileged: true
+    # Main Subnet Border Router containers.
+    HUST-ROUTER:
+        image: quagga-powerful
+        container_name: HUST-ROUTER
+        networks:
+            - HUST-SUBNET-SERVER
+            - HUST-SUBNET-BORDER
+            - HUST-SUBNET-USER
+        entrypoint: sh -c "/entrypoint.sh && ip route add default via 202.114.0.1 && tail -f /dev/null"
+        volumes:
+            - ./Entrypoint-sh/ROUTER.sh:/entrypoint.sh
+            - ./Quagga-conf/HUST-ROUTER.conf:/etc/quagga/Quagga.conf
+        privileged: true
+    WHU-ROUTER:
+        image: quagga-powerful
+        container_name: WHU-ROUTER
+        networks:
+            - WHU-SUBNET-SERVER
+            - WHU-SUBNET-BORDER
+            - WHU-SUBNET-USER
+        entrypoint: sh -c "/entrypoint.sh && ip route add default via 202.114.64.1 && tail -f /dev/null"
+        volumes:
+            - ./Entrypoint-sh/ROUTER.sh:/entrypoint.sh
+            - ./Quagga-conf/WHU-ROUTER.conf:/etc/quagga/Quagga.conf
+        privileged: true
+    GOOGLE-ROUTER:
+        image: quagga-powerful
+        container_name: GOOGLE-ROUTER
+        networks:
+            - GOOGLE-SUBNET-BORDER
+            - GOOGLE-SUBNET-SERVER
+        entrypoint: sh -c "/entrypoint.sh && ip route add default via 8.8.0.1 && tail -f /dev/null"
+        volumes:
+            - ./Entrypoint-sh/ROUTER.sh:/entrypoint.sh
+            - ./Quagga-conf/GOOGLE-ROUTER.conf:/etc/quagga/Quagga.conf
+        privileged: true
+    # HUST subnet.
+    HUST-ROUTER-USER:
+        image: quagga-powerful
+        container_name: HUST-ROUTER-USER
+        networks:
+            - HUST-SUBNET-USER
+            - HUST-SUBNET-USER-LAN
+        entrypoint: sh -c "/entrypoint.sh && ip route add default via 202.114.11.1 && tail -f /dev/null" 
+        volumes:
+            - ./Entrypoint-sh/ROUTER.sh:/entrypoint.sh
+            - ./Quagga-conf/HUST-ROUTER-USER.conf:/etc/quagga/Quagga.conf
+        privileged: true
+    HUST-HUB:
+        image: alpine-powerful
+        container_name: HUST-HUB
+        networks:
+            - HUST-SUBNET-SERVER
+        entrypoint: /entrypoint.sh
+        volumes:
+            - ./Entrypoint-sh/HUST-HUB.sh:/entrypoint.sh
+            - ./httpd.py:/httpd.py
+        privileged: true
+    HUST-LYJ:
+        image: alpine-bind-tools
+        container_name: HUST-LYJ
+        networks:
+            - HUST-SUBNET-USER-LAN
+        entrypoint: sh -c "ip addr flush to 0.0.0.0/0 && ip route flush table all && ip addr add 202.114.12.3/24 dev eth0 && ip route add default via 202.114.12.1 && tail -f /dev/null"
+        privileged: true
+    HUST-USER1:
+        image: alpine-powerful
+        container_name: HUST-USER1
+        networks:
+            - HUST-SUBNET-USER-LAN
+        entrypoint: sh -c "ip addr add 202.114.12.2/24 dev eth0 && tail -f /dev/null"
+        privileged: true
+    HUST-ROUTER-USER-WIRELESS:
+        image: quagga-powerful
+        container_name: HUST-ROUTER-USER-WIRELESS
+        networks:
+            - HUST-SUBNET-USER-LAN
+            - HUST-SUBNET-USER-WIRELESS-LAN
+        entrypoint: sh -c "/entrypoint.sh && tail -f /dev/null"
+        volumes:
+            - ./Entrypoint-sh/HUST-USER-WIRELESS.sh:/entrypoint.sh
+        privileged: true
+    HUST-USER2:
+        image: alpine-powerful
+        container_name: HUST-USER2
+        networks:
+            - HUST-SUBNET-USER-WIRELESS-LAN
+        entrypoint: /entrypoint.sh
+        volumes:
+            - ./Entrypoint-sh/DHCP-CLIENT.sh:/entrypoint.sh
+        privileged: true
+    # WHU subnet.
+    WHU-WWW:
+        image: alpine-powerful
+        container_name: WHU-WWW
+        networks:
+            - WHU-SUBNET-SERVER
+        entrypoint: /entrypoint.sh
+        volumes:
+            - ./Entrypoint-sh/WHU-WWW.sh:/entrypoint.sh
+            - ./httpd.py:/httpd.py
+        privileged: true
+    WHU-DB:
+        image: mysql
+        container_name: WHU-DB
+        networks:
+            - WHU-SUBNET-SERVER
+        environment:
+            MYSQL_ROOT_PASSWORD: "admin123"
+            MYSQL_USER: 'test'
+            MYSQL_PASS: 'test123'
+        volumes:
+            - "./WHU-DB/db:/var/lib/mysql"
+            - "./WHU-DB/conf/my.cnf:/etc/my.cnf"
+            - "./WHU-DB/init:/docker-entrypoint-initdb.d/"
+        privileged: true
+    WHU-BACKUP:
+        image: alpine-powerful
+        container_name: WHU-BACKUP
+        networks:
+            - WHU-SUBNET-SERVER
+        entrypoint: /entrypoint.sh
+        volumes:
+            - ./Entrypoint-sh/WHU-BACKUP.sh:/entrypoint.sh
+            - ./ftpd.py:/ftpd.py
+            - ./ftp-test.txt:/ftp-test.txt
+        privileged: true
+    WHU-STUDENT-NAT:
+        image: quagga-powerful
+        container_name: WHU-STUDENT-NAT
+        networks:
+            - WHU-SUBNET-USER
+            - WHU-SUBNET-USER-LAN
+        entrypoint: sh -c "/entrypoint.sh && tail -f /dev/null"
+        volumes:
+            - ./Entrypoint-sh/WHU-STUDENT-NAT.sh:/entrypoint.sh
+        privileged: true
+    WHU-USER1:
+        image: alpine-powerful
+        container_name: WHU-USER1
+        networks:
+            - WHU-SUBNET-USER-LAN
+        entrypoint: sh -c "ip addr flush to 0.0.0.0/0 && ip route flush table all && ip addr add 192.168.30.1/24 dev eth0 && ip route add default via 192.168.30.254 && tail -f /dev/null"
+        privileged: true
+    WHU-USER2:
+        image: debian-vpn-client
+        container_name: WHU-USER2
+        networks:
+            - WHU-SUBNET-USER-LAN
+        entrypoint: sh -c "ip addr flush to 0.0.0.0/0 && ip route flush table all && ip addr add 192.168.30.2/24 dev eth0 && ip route add default via 192.168.30.254 && tail -f /dev/null"
+        privileged: true
+    # GOOGLE subnet.
+    GOOGLE-DNS:
+        image: quagga-powerful
+        container_name: GOOGLE-DNS
+        networks:
+            - GOOGLE-SUBNET-SERVER
+        entrypoint: /entrypoint.sh
+        volumes:
+            - ./Entrypoint-sh/GOOGLE-DNS.sh:/entrypoint.sh
+        privileged: true
+    GOOGLE-VPN-SERVER:
+        image: debian-vpn-server
+        container_name: GOOGLE-VPN-SERVER
+        networks:
+            - GOOGLE-SUBNET-SERVER
+            - GOOGLE-SUBNET-VPN
+        entrypoint: sh -c "ip addr flush to 0.0.0.0/0 && ip route flush table all && ip addr add 8.8.8.9/24 dev eth0 && ip addr add 192.168.2.254/24 dev eth1 && ip route add default via 8.8.8.1 && /etc/init.d/openvpn start && tail -f /dev/null"
+        volumes:
+            - ./vpn-server.conf:/etc/openvpn/server.conf
+        privileged: true
+    GOOGLE-TOP-SECRET:
+        image: alpine-powerful
+        container_name: GOOGLE-TOP-SECRET
+        networks:
+            - GOOGLE-SUBNET-VPN
+        entrypoint: /entrypoint.sh
+        volumes:
+            - ./Entrypoint-sh/GOOGLE-TOP-SECRET.sh:/entrypoint.sh
+            - ./httpd.py:/httpd.py
+        privileged: true
+networks:
+    BGP-10086-10010:
+        driver: bridge
+    BGP-10010-10087:
+        driver: bridge
+    
+    S-BGP-23333-10086:
+        driver: bridge
+    S-BGP-23333-10010:
+        driver: bridge
+        
+    HUST-SUBNET-BORDER:
+        driver: bridge
+    HUST-SUBNET-SERVER:
+        driver: bridge
+    HUST-SUBNET-USER:
+        driver: bridge
+    HUST-SUBNET-USER-LAN:
+        driver: bridge
+    HUST-SUBNET-USER-WIRELESS-LAN:
+        driver: bridge
+    
+    WHU-SUBNET-BORDER:
+        driver: bridge
+    WHU-SUBNET-SERVER:
+        driver: bridge
+    WHU-SUBNET-USER:
+        driver: bridge
+    WHU-SUBNET-USER-LAN:
+        driver: bridge
+
+    GOOGLE-SUBNET-BORDER:
+        driver: bridge
+    GOOGLE-SUBNET-SERVER:
+        driver: bridge
+    GOOGLE-SUBNET-VPN:
+        driver: bridge
