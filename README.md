@@ -1,4 +1,4 @@
-### UniqueLab 2019 Autumn Assignment
+## UniqueLab 2019 Autumn Assignment
 
 UniqueLab belongs to Unique Studio in HUST. 
 

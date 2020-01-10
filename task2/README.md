@@ -1,10 +1,10 @@
-### UniqueLab 2019 Autumn Assignment 2
+## UniqueLab 2019 Autumn Assignment 2
 
-#### 0x01 descriptions
+### 0x01 descriptions
 
 a basic implementation of **shell** like bash, zsh, ash and etc.
 
-#### 0x02 requirements
+### 0x02 requirements
 
 - terminal part:
   - input commands in a line, and click Enter to run commands.
@@ -23,11 +23,11 @@ a basic implementation of **shell** like bash, zsh, ash and etc.
     - Command *xargs*: execute arguments always with pipe, for example, `cat < file_list | xargs cat > file_merge`, and also use `xargs -d [delim]` to decide the delimiter character.
     - File methods: `touch foo.txt` modify the files' timestamps or create a file, `mkdir bar` , `cp foo bar` ,  `mv foo bar` , `rm [-r/-rf/-f] foo` , `ln foo bar` to create hard link, `ln -s foo bar` to create symbol link.
 
-#### 0x03 reference
+### 0x03 reference
 
 man pages oriented
 
-#### 0x04 solutions
+### 0x04 solutions
 
 for details, please see `./include` `./src` `./utils` and compile with `-lreadline`.
 

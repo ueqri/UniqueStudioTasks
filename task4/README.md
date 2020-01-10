@@ -1,10 +1,10 @@
-### UniqueLab 2019 Autumn Assignment 4
+## UniqueLab 2019 Autumn Assignment 4
 
-#### 0x01 descriptions
+### 0x01 descriptions
 
 using **semaphore, shared memory, socket and other IPC methods** to deal with the **synchronization problem** between **multi-processes**. using **multi-threads** to deal with **concurrent problems**.
 
-#### 0x02 requirements
+### 0x02 requirements
 
 - sub task 1: read data from the device `/dev/quantum_reader_0` which module-inserted from `quantum.ko`. ensure there is only one process reading from the device at any time in case of device crash (maybe there are many processes waiting).
 
@@ -24,11 +24,11 @@ using **semaphore, shared memory, socket and other IPC methods** to deal with th
 
 - sub task 3: use multi-threads to cut some pieces of data from other *books* and save at a *report*. send all the *reports* by TCP socket.
 
-#### 0x03 references
+### 0x03 references
 
 Modern Operating Systems (4th Edition)
 
-#### 0x04 solutions
+### 0x04 solutions
 
 for the convenience of semaphore, `./semaphore.h` put some usual functions in a package:
 
