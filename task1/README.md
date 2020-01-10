@@ -48,9 +48,11 @@ two implementations of C++ STL containers: **set** and **priority_queue**. Requi
 
 for details, please read `set_LLRB.hpp` and `priority_queue_FIBHeap.hpp`.
 
-using methods like STL:
+using methods just like STL:
+
+- simple demo for `set<typename>`
+
 ```c++
-/* simple demo for set<typename> */
 set<int> s;
 
 for (int i = 0; i < array_size; ++i) s.insert(random_number[i]);
@@ -69,8 +71,10 @@ std::cout<<*(s.upper_bound(300))<<std::endl;
 
 s.clear();
 if (s.empty()) std::cout<<"set empty!"<<std::endl;
+```
+- simple demo for `priority_queue<typename>`
 
-/* simple demo for priority_queue<typename> */
+```c++
 priority_queue<int> q;
 
 for (int i = 0; i < array_size; ++i) q.push(random_number[i]);
